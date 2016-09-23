@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-ip_port_for_sort='192.168.0.199.20000'
-what_to_plot='sent'
+ip_port_for_sort='192.168.0.101.20000'#'192.168.0.101.20000'
+what_to_plot='sent' #code breaks when you change this to rcv. Hence, instead of changing this, change the ip to get various views
+y_max=4
 sent=[]
 rcv=[]
 data1=[]
@@ -23,7 +24,9 @@ def perdelta(start, end, delta):
 
 #dos_sa_slave
 #file=open('masterthirdcaptureblackhole.txt','r')
-file=open('slavefourthcaptureDoS1.txt','r')
+#file=open('slavefourthcaptureDoS1.txt','r')
+file=open('test1.txt','r')
+
 for i in file:
     line=i.strip().split(' ')
     #print line
@@ -33,20 +36,21 @@ for i in file:
         rcv.append(line)
 #print "sent=", sent
 #print "rcv=", rcv
-#a.split('.')[0]
-if what_to_plot=="sent":
-    start_time=sent[0][0]+' '+(sent[0][1]).split('.')[0]
-    end_time=sent[len(sent)-1][0]+' '+ (sent[len(sent)-1][1]).split('.')[0]
-    start_time=datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
-    end_time=datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+
+start_time_sent=sent[0][0]+' '+(sent[0][1]).split('.')[0]
+end_time_sent=sent[len(sent)-1][0]+' '+ (sent[len(sent)-1][1]).split('.')[0]
+start_time_rcv=rcv[0][0]+' '+(rcv[0][1]).split('.')[0]
+end_time_rcv=rcv[len(rcv)-1][0]+' '+ (rcv[len(rcv)-1][1]).split('.')[0]
+
+if datetime.strptime(start_time_sent, '%Y-%m-%d %H:%M:%S') <=datetime.strptime(start_time_rcv, '%Y-%m-%d %H:%M:%S'):
+    start_time=datetime.strptime(start_time_sent, '%Y-%m-%d %H:%M:%S')
 else:
-    start_time=rcv[0][0]+' '+(rcv[0][1]).split('.')[0]
-    end_time=rcv[len(rcv)-1][0]+' '+ (rcv[len(rcv)-1][1]).split('.')[0]
-    start_time=datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
-    end_time=datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+    start_time=datetime.strptime(start_time_rcv, '%Y-%m-%d %H:%M:%S')
 
-
-
+if datetime.strptime(end_time_sent, '%Y-%m-%d %H:%M:%S') >=datetime.strptime(end_time_rcv, '%Y-%m-%d %H:%M:%S'):
+    end_time=datetime.strptime(end_time_sent, '%Y-%m-%d %H:%M:%S')
+else:
+    end_time=datetime.strptime(end_time_rcv, '%Y-%m-%d %H:%M:%S')
 #print "start time=",start_time
 #print "end time=",end_time
 if end_time==start_time:
@@ -75,6 +79,7 @@ if what_to_plot=="sent":
 else:
     for i in rang:
         for j in range(s,len(rcv)):
+            print (rcv[j][0]+' '+(rcv[j][1]).split('.')[0])
             if  datetime.strptime((rcv[j][0]+' '+(rcv[j][1]).split('.')[0]), '%Y-%m-%d %H:%M:%S') <=i:
                 dictionary[i]=dictionary[i]+1
 
@@ -83,11 +88,13 @@ else:
                 break
 
 
-print dictionary
+
+
+#print dictionary
 
 sortedList = sorted([(k, v) for k, v in dictionary.iteritems()])
 
-print "new_dictionary=", sortedList
+#print "new_dictionary=", sortedList
 #print sortedList[0][1]
 new_list=[]
 for i in range(0,len(sortedList)):
@@ -108,10 +115,12 @@ ax1.set_ylabel('Packets per Second')
 #print "dates=",dates
 if end_time==start_time:
     ax1.plot_date(dates, new_list,'o')
+
 else:
     ax1.plot_date(dates, new_list,'-')
 
 ax1.fill_between(dates, new_list, lowest_value, facecolor='green', alpha=0.5)
 ax1.grid(True)
 plt.gcf().autofmt_xdate()
+plt.ylim([0,y_max])
 plt.show()
